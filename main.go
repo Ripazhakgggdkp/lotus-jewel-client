@@ -21,13 +21,13 @@ func main() {
 	log.Println("Connection OK")
 
 	pingErr := client.ping()
-	go func(err chan error) {
+	go func(err <-chan error) {
 		log.Println("Could not keep connection alive, exiting\n", <-err)
 		exit()
 	}(pingErr)
 
 	autoStopErr := client.autoStop(duration, ID)
-	go func(err chan error) {
+	go func(err <-chan error) {
 		log.Println("Could not stop device, exiting\n", <-err)
 		exit()
 	}(autoStopErr)

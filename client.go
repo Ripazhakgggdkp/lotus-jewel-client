@@ -28,7 +28,7 @@ func newClient() (*Client, error) {
 }
 
 // Keeps the websocket connection alive
-func (g *Client) ping() chan error {
+func (g *Client) ping() <-chan error {
 	error := make(chan error)
 	go func() {
 		ticker := time.NewTicker(5 * time.Second)
@@ -52,7 +52,7 @@ func (g *Client) vibrate(strength float64) error {
 }
 
 // Makes sure device activation only runs for a set amount of time
-func (g *Client) autoStop(duration time.Duration, ID int) chan error {
+func (g *Client) autoStop(duration time.Duration, ID int) <-chan error {
 	error := make(chan error)
 	go func(g *Client) {
 		for {
