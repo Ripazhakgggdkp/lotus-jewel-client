@@ -1,5 +1,5 @@
 # Lotus Jewel Client
-Lotus Jewel Client is an unofficial tool that makes it easy to add buttplug.io support to Zero Ranger (and maybe other GameMaker games).
+Lotus Jewel Client is an unofficial tool that makes it easy to add [buttplug.io](https://buttplug.io/) support to Zero Ranger (and maybe other GameMaker games).
 
 ## Resources
 [Latest release](https://github.com/Ripazhakgggdkp/lotus-jewel-client/releases)
