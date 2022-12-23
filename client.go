@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"sync"
 	"time"
 
@@ -15,47 +14,53 @@ type Client struct {
 	connected     bool
 }
 
-func newClient() *Client {
+func newClient() (*Client, error) {
 	socketUrl := "ws://localhost:12345"
 	conn, _, err := websocket.DefaultDialer.Dial(socketUrl, nil)
 	if err != nil {
-		log.Fatal("Could not connect to websocket server. Check if Intiface Central is installed and running.\n", err)
+		return nil, err
 	}
 	return &Client{
 		LastActivated: time.Now(),
 		conn:          conn,
 		connected:     false,
-	}
+	}, nil
 }
 
 // Keeps the websocket connection alive
-func (g *Client) ping() {
+func (g *Client) ping() chan error {
+	error := make(chan error)
 	go func() {
 		ticker := time.NewTicker(5 * time.Second)
 		for range ticker.C {
-			if err := g.conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-				return
+			if err := g.send(websocket.PingMessage, []byte{}); err != nil {
+				error <- err
 			}
 		}
 	}()
+	return error
 }
 
-func (g *Client) connect(ID int) {
-	g.conn.WriteMessage(websocket.TextMessage, connect(ID))
+func (g *Client) connect(ID int) error {
 	g.connected = true
+	return g.send(websocket.TextMessage, connect(ID))
 }
 
-func (g *Client) vibrate(strength float64) {
+func (g *Client) vibrate(strength float64) error {
 	g.LastActivated = time.Now()
-	g.conn.WriteMessage(websocket.TextMessage, vibrate(1, clamp(strength, 0, 1)))
+	return g.send(websocket.TextMessage, vibrate(1, clamp(strength, 0, 1)))
 }
 
 // Makes sure device activation only runs for a set amount of time
-func (g *Client) autoStop(duration time.Duration, ID int) {
+func (g *Client) autoStop(duration time.Duration, ID int) chan error {
+	error := make(chan error)
 	go func(g *Client) {
 		for {
 			if time.Since(g.LastActivated) > duration && g.connected {
-				g.conn.WriteMessage(websocket.TextMessage, stop(ID))
+				err := g.send(websocket.TextMessage, stop(ID))
+				if err != nil {
+					error <- err
+				}
 				g.lock.Lock()
 				g.LastActivated = time.Now()
 				g.lock.Unlock()
@@ -63,10 +68,11 @@ func (g *Client) autoStop(duration time.Duration, ID int) {
 		}
 	}(g)
 
+	return error
 }
 
-func (g *Client) stop() {
-	g.conn.WriteMessage(websocket.TextMessage, stop(1))
+func (g *Client) stop() error {
+	return g.send(websocket.TextMessage, stop(1))
 }
 
 func clamp(f, low, high float64) float64 {
@@ -77,4 +83,10 @@ func clamp(f, low, high float64) float64 {
 		return high
 	}
 	return f
+}
+
+func (g *Client) send(messageType int, data []byte) error {
+	g.lock.Lock()
+	defer g.lock.Unlock()
+	return g.conn.WriteMessage(messageType, data)
 }

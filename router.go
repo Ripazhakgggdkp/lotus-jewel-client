@@ -14,7 +14,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func listenHTTP(client *Client) {
+func listenHTTP(client *Client) <-chan error {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
@@ -22,9 +22,10 @@ func listenHTTP(client *Client) {
 
 	server := &http.Server{Addr: ":25565", Handler: r}
 
+	error := make(chan error)
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			log.Fatal("Could not create server. Check if another program is running in port 25565", err)
+			error <- err
 		}
 	}()
 
@@ -32,13 +33,19 @@ func listenHTTP(client *Client) {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 
-	<-stop
+	go func(chan os.Signal) {
+		<-stop
+		log.Println("Shutting down client")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			log.Fatal("Could not shutdown server gracefully", err)
+		}
+		os.Exit(0)
+	}(stop)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
-		log.Fatal("Could not shutdown server gracefully", err)
-	}
+	return error
+
 }
 
 // Handle requests
