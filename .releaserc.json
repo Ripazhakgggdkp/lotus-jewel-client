@@ -10,7 +10,7 @@
             {
                 "assets": [
                     {
-                        "path": "release/**"
+                        "path": "releases/**"
                     }
                 ]
             }
