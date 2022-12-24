@@ -5,7 +5,7 @@ Lotus Jewel Client is an unofficial tool that makes it easy to add [buttplug.io]
 [Latest release](https://github.com/Ripazhakgggdkp/lotus-jewel-client/releases)
 
 ## Prerequisites
-This tool requires you to download an install [Intiface Central](https://intiface.com/central/) to command devices.
+This tool requires you to download and install [Intiface Central](https://intiface.com/central/) to command devices.
 
 ## Usage
 This tool runs a server in port `25565` and relays HTTP messages to Intiface Central, a cross-platform hub that lets you easily connect any buttplug.io supported device. This makes it really simple to stick HTTP Calls via a tool like [UMT](https://github.com/krzys-h/UndertaleModTool) anywhere you want your device to do something. 
