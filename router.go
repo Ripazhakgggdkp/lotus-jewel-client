@@ -60,7 +60,10 @@ func route(r *chi.Mux, client *Client) {
 		client.vibrate(strength)
 	})
 	r.Get("/connect", func(w http.ResponseWriter, r *http.Request) {
-		client.connect(1)
+		err := client.connect(1)
+		if err != nil {
+			log.Fatal("Could not connect game to Intiface Central", err)
+		}
 	})
 	r.Get("/stop", func(w http.ResponseWriter, r *http.Request) {
 		client.stop()

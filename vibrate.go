@@ -17,9 +17,9 @@ type Vibrate struct {
 	VibrateCmd VibrateCommand
 }
 
-func vibrate(index uint, speed float64) []byte {
+func vibrate(index uint, deviceIndex uint, speed float64) []byte {
 
-	asdf := []Speed{{
+	speeds := []Speed{{
 		Index: index,
 		Speed: speed,
 	}}
@@ -27,8 +27,8 @@ func vibrate(index uint, speed float64) []byte {
 	packet := []Vibrate{{
 		VibrateCmd: VibrateCommand{
 			ID:          1,
-			DeviceIndex: 0,
-			Speeds:      asdf,
+			DeviceIndex: int(deviceIndex),
+			Speeds:      speeds,
 		},
 	}}
 

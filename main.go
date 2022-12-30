@@ -4,11 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 )
-
-var duration = 1 * time.Second
-var ID = 1
 
 func main() {
 
@@ -20,21 +16,22 @@ func main() {
 
 	log.Println("Connection OK")
 
-	pingErr := client.ping()
-	go func(err <-chan error) {
-		log.Println("Could not keep connection alive, exiting\n", <-err)
-		exit()
-	}(pingErr)
-
-	autoStopErr := client.autoStop(duration, ID)
-	go func(err <-chan error) {
-		log.Println("Could not stop device, exiting\n", <-err)
-		exit()
-	}(autoStopErr)
+	clientErr := make(chan error)
+	go func(err chan error) {
+		clientErr <- client.handle()
+	}(clientErr)
 
 	httpErr := listenHTTP(client)
-	if <-httpErr != nil {
-		log.Println("Server error\n", err)
+
+	for {
+		select {
+		case err := <-clientErr:
+			log.Println(err)
+			exit()
+		case err := <-httpErr:
+			log.Println(err)
+			exit()
+		}
 	}
 }
 

@@ -11,12 +11,12 @@ type Stop struct {
 	StopDeviceCmd StopDeviceCommand
 }
 
-func stop(index int) []byte {
+func stop(deviceIndex uint) []byte {
 
 	packet := []Stop{{
 		StopDeviceCmd: StopDeviceCommand{
 			ID:          1,
-			DeviceIndex: 0,
+			DeviceIndex: int(deviceIndex),
 		},
 	}}
 
