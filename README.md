@@ -32,4 +32,4 @@ Stops any vibration immediately.
 Similarly, `http_get("http://localhost:25565/vibrate/0.3")` will command the first Intiface registered device to start vibrating at intensity 0.3.
 
 ## Limitations
-So far this tool only supports commanding one device at a time, and the vibration duration is not configurable.
+Vibration cutoff duration is not configurable.
