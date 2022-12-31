@@ -17,11 +17,15 @@ Connects the device to Intiface Central. Required before calling anything else.
 
 `GET /vibrate/{intensity}`
 
-Starts a vibration with the specified intensity (from 0 to 1). Will automatically stop after one second.
+Starts a vibration to all connected devices with the specified intensity (from 0 to 1). Will automatically stop all devices after one second.
+
+`GET /vibrate/{intensity}/{deviceIndex}`
+
+Starts a vibration on the specified device (starting from 0) with the specified intensity. Will automatically stop after one second. Great for two player modes.
 
 `GET /stop/`
 
-Stops any vibration immediately. 
+Stops all devices immediately. 
 
 ## Example UMT Mod
  
@@ -29,7 +33,7 @@ Stops any vibration immediately.
  
 `http_get("http://localhost:25565/connect")` will connect the game to Intiface Central.
 
-Similarly, `http_get("http://localhost:25565/vibrate/0.3")` will command the first Intiface registered device to start vibrating at intensity 0.3.
+Similarly, `http_get("http://localhost:25565/vibrate/0.3")` will command all Intiface registered devices to start vibrating at intensity 0.3.
 
 ## Limitations
 Vibration cutoff duration is not configurable.

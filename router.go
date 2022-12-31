@@ -59,6 +59,20 @@ func route(r *chi.Mux, client *Client) {
 
 		client.vibrate(strength)
 	})
+	r.Get("/vibrate/{strength}/{deviceIndex}", func(w http.ResponseWriter, r *http.Request) {
+		strength, err := strconv.ParseFloat(chi.URLParam(r, "strength"), 64)
+
+		if err != nil {
+			strength = 0
+		}
+
+		deviceIndex, err := strconv.ParseUint(chi.URLParam(r, "deviceIndex"), 10, 64)
+		if err != nil {
+			deviceIndex = 0
+		}
+
+		client.vibrate(strength, uint(deviceIndex))
+	})
 	r.Get("/connect", func(w http.ResponseWriter, r *http.Request) {
 		err := client.connect(1)
 		if err != nil {

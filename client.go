@@ -33,7 +33,7 @@ type SendError struct {
 }
 
 type Client struct {
-	LastActivated time.Time
+	LastActivated map[uint]time.Time
 	conn          *websocket.Conn
 	connected     bool
 	devices       []Devices
@@ -60,7 +60,7 @@ func newClient() (*Client, error) {
 		return nil, err
 	}
 	return &Client{
-		LastActivated: time.Now(),
+		LastActivated: make(map[uint]time.Time),
 		conn:          conn,
 		connected:     false,
 		sendError:     make(chan SendError),
@@ -125,38 +125,55 @@ func (g *Client) connect(ID int) error {
 
 }
 
-func (g *Client) vibrate(strength float64) {
+func (g *Client) vibrate(strength float64, deviceIndexes ...uint) {
+
 	g.Lock()
-	g.LastActivated = time.Now()
-	indexes := g.devices
+	for _, index := range deviceIndexes {
+		g.send(websocket.TextMessage, VibrateMessage, vibrate(1, index, clamp(strength, 0, 1)))
+		g.LastActivated[index] = time.Now()
+	}
 	g.Unlock()
 
-	for _, device := range indexes {
-		g.send(websocket.TextMessage, VibrateMessage, vibrate(1, device.DeviceIndex, clamp(strength, 0, 1)))
+	if len(deviceIndexes) > 0 {
+		return
 	}
+
+	g.Lock()
+	for _, device := range g.devices {
+		g.send(websocket.TextMessage, VibrateMessage, vibrate(1, device.DeviceIndex, clamp(strength, 0, 1)))
+		g.LastActivated[device.DeviceIndex] = time.Now()
+	}
+	g.Unlock()
 }
 
 // Makes sure device activation only runs for a set amount of time
 func (g *Client) autoStop(duration time.Duration, ID int) {
 	for {
 		g.Lock()
-		if time.Since(g.LastActivated) > duration && g.connected {
-			for _, device := range g.devices {
+		for _, device := range g.devices {
+			if time.Since(g.LastActivated[device.DeviceIndex]) > duration && g.connected {
 				g.send(websocket.TextMessage, StopMessage, stop(device.DeviceIndex))
+				g.LastActivated[device.DeviceIndex] = time.Now()
 			}
-
-			g.LastActivated = time.Now()
 		}
 		g.Unlock()
 	}
 }
 
-func (g *Client) stop() {
+func (g *Client) stop(deviceIndex ...uint) {
 	g.Lock()
-	indexes := g.devices
+	devices := g.devices
 	g.Unlock()
 
-	for _, device := range indexes {
+	for _, index := range deviceIndex {
+		g.send(websocket.TextMessage, StopMessage, stop(index))
+	}
+
+	if len(deviceIndex) > 0 {
+		return
+	}
+
+	for _, device := range devices {
 		g.send(websocket.TextMessage, StopMessage, stop(device.DeviceIndex))
 	}
 
