@@ -1,5 +1,5 @@
 # Lotus Jewel Client
-Lotus Jewel Client is an unofficial tool that makes it easy to add [buttplug.io](https://buttplug.io/) support to Zero Ranger (and maybe other GameMaker games).
+Lotus Jewel Client is an unofficial tool that makes it easy to add [buttplug.io](https://buttplug.io/) support to ZeroRanger (and maybe other GameMaker games).
 
 ## Resources
 [Latest release](https://github.com/Ripazhakgggdkp/lotus-jewel-client/releases)
@@ -21,7 +21,7 @@ Starts a vibration on all connected devices with the specified intensity (from 0
 
 `GET /vibrate/{intensity}/{deviceIndex}`
 
-Starts a vibration on the specified device (starting from 0) with the specified intensity. Will automatically stop after one second. Great for two player modes.
+Starts a vibration on the specified device (starting from 0) with the specified intensity. Will automatically stop after one second. Great for two player! Suggested by @gooeyPhantasm from the ZeroRanger Discord.
 
 `GET /stop/`
 
@@ -36,4 +36,4 @@ Stops all devices immediately.
 Similarly, `http_get("http://localhost:25565/vibrate/0.3")` will command all Intiface registered devices to start vibrating at intensity 0.3.
 
 ## Limitations
-Vibration cutoff duration is not configurable.
+Vibration auto stop duration is not configurable.
