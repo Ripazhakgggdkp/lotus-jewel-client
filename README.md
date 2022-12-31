@@ -17,7 +17,7 @@ Connects the device to Intiface Central. Required before calling anything else.
 
 `GET /vibrate/{intensity}`
 
-Starts a vibration to all connected devices with the specified intensity (from 0 to 1). Will automatically stop all devices after one second.
+Starts a vibration on all connected devices with the specified intensity (from 0 to 1). Will automatically stop all devices after one second.
 
 `GET /vibrate/{intensity}/{deviceIndex}`
 
